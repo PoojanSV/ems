@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4338ca">
+<title>EMS PIN Board</title>
+<style>
+:root{--brand:#4338ca;--brand2:#06b6d4;--ink:#0f172a;--mute:#64748b;--line:#e2e8f0;--bg:#f3f5fb;--bad:#dc2626}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.hidden{display:none!important}
+header.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:linear-gradient(135deg,var(--brand),#0e7490);color:#fff}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:36px;height:36px;flex:none}.logo.xl{width:84px;height:84px}
+.word{font-weight:800;letter-spacing:.14em;font-size:19px}
+.tag{font-size:11px;font-weight:700;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:99px;letter-spacing:.05em}
+.who{display:flex;align-items:center;gap:12px;font-size:13px}
+.live{font-weight:700;font-size:12px}.live.on::before,.live.off::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.live.on::before{background:#4ade80}.live.off::before{background:#f87171}
+#clk{font-variant-numeric:tabular-nums;font-weight:700}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border:0;border-radius:12px;font:inherit;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand2));cursor:pointer}
+.btn.sec{background:#eef2ff;color:var(--brand)}.btn.xs{min-height:30px;padding:0 10px;font-size:12px;border-radius:8px}
+.btn:disabled{opacity:.6}
+.link{background:none;border:0;color:var(--brand);font:inherit;font-weight:600;margin-top:12px;cursor:pointer;width:100%}
+label{display:block;margin:10px 0 4px;font-size:12px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;background:#fff;color:var(--ink)}
+input:focus{outline:2px solid var(--brand2);border-color:transparent}
+.spin{width:18px;height:18px;border:3px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;display:inline-block}
+.spin.dark{border-color:#c7d2fe;border-top-color:var(--brand)}.spin.big{width:36px;height:36px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.center{text-align:center;padding:16px}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:6px}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{width:100%;max-width:380px;background:#fff;border-radius:22px;padding:26px;box-shadow:0 20px 50px rgba(67,56,202,.15)}
+.login .brand{flex-direction:column;text-align:center;margin-bottom:10px}
+.login .word{font-size:30px;background:linear-gradient(135deg,var(--brand),var(--brand2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--mute);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;text-align:center;box-shadow:0 6px 20px rgba(67,56,202,.08)}
+.pname{font-size:20px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcode{font-size:52px;font-weight:800;letter-spacing:.08em;font-variant-numeric:tabular-nums;margin:6px 0 10px;background:linear-gradient(135deg,var(--brand),var(--brand2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.pcode.wait{font-size:20px;letter-spacing:0;-webkit-text-fill-color:#94a3b8;background:none;padding:18px 0}
+.bar{height:8px;border-radius:99px;background:#e2e8f0;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .5s linear}
+.bar i.low{background:linear-gradient(90deg,#dc2626,#f97316)}
+.pt{margin-top:8px;font-size:13px;color:var(--mute);font-weight:600}
+.empty{padding:60px 16px;text-align:center;color:var(--mute)}
+.empty b{display:block;font-size:18px;color:var(--ink);margin-bottom:6px}
+.banner{background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:12px;margin-bottom:14px;font-size:14px}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><linearGradient id="emsg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4338ca"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+  <symbol id="ems-logo" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="16" fill="url(#emsg)"/>
+    <path d="M32 9C23.2 9 16 15.9 16 24.5c0 11.2 12.6 24.1 15 26.4.6.6 1.4.6 2 0 2.4-2.3 15-15.2 15-26.4C48 15.9 40.8 9 32 9z" fill="#fff"/>
+    <circle cx="32" cy="24.5" r="9.5" fill="url(#emsg)"/>
+    <path d="M32 18.8v5.9l4.2 2.6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</svg>
+
+<main id="v-load"><div class="center" style="padding-top:40vh"><span class="spin dark big"></span></div></main>
+
+<main id="v-login" class="login hidden">
+  <div class="login-card">
+    <div class="brand"><svg class="logo xl"><use href="#ems-logo"/></svg><div class="word">EMS</div><div class="sub">PIN Board · office display</div></div>
+    <form id="loginForm">
+      <label for="email">Email</label><input id="email" type="email" required autocomplete="username">
+      <label for="pass">Password</label><input id="pass" type="password" required autocomplete="current-password">
+      <div class="err" id="loginErr"></div>
+      <button class="btn" id="loginBtn" type="submit" style="width:100%;margin-top:8px">Sign in</button>
+    </form>
+    <button class="link" id="forgot" type="button">Forgot password?</button>
+  </div>
+</main>
+
+<div id="v-board" class="hidden">
+  <header class="top">
+    <div class="brand"><svg class="logo"><use href="#ems-logo"/></svg><div class="word">EMS</div><span class="tag">PIN BOARD</span></div>
+    <div class="who"><span class="live on" id="live">Live</span><span id="clk"></span><button class="btn xs sec" id="logout">Sign out</button></div>
+  </header>
+  <div class="wrap">
+    <div id="banner" class="banner hidden"></div>
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty"><b>No active PINs</b>When an employee requests a PIN, their name and PIN appear here for 1 minute.</div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+'use strict';
+/* ====== PASTE YOUR FIREBASE WEB CONFIG HERE (same as index.html) ====== */
+const firebaseConfig = {
+  apiKey: "AIzaSyA54Vz_46paWinrnIk4Pxjv8OD5Hi9MXFI",
+  authDomain: "ems-45c2c.firebaseapp.com",
+  projectId: "ems-45c2c",
+  storageBucket: "ems-45c2c.firebasestorage.app",
+  messagingSenderId: "432371886956",
+  appId: "1:432371886956:web:14f3628ea215a940972149",
+  measurementId: "G-PDJN7GNNPS"
+};
+/* ===================================================================== */
+if(typeof firebase==='undefined'||firebaseConfig.apiKey.indexOf('YOUR_')===0){
+  document.body.innerHTML='<div style="padding:28px;font:16px/1.5 system-ui"><h2>EMS PIN Board setup needed</h2><p>'+(typeof firebase==='undefined'?'Could not load Firebase. Check your internet connection.':'Open <b>pin.html</b> and paste your Firebase web-app config into <code>firebaseConfig</code> (see SETUP-GUIDE.md).')+'</p></div>';
+  return;
+}
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth(),db=firebase.firestore();
+db.settings({experimentalAutoDetectLongPolling:true,merge:true});
+const FV=firebase.firestore.FieldValue;
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const p2=n=>String(n).padStart(2,'0');
+function authMsg(e){const m={'auth/invalid-credential':'Wrong email or password.','auth/wrong-password':'Wrong email or password.','auth/user-not-found':'Wrong email or password.','auth/invalid-email':'Enter a valid email address.','auth/too-many-requests':'Too many attempts. Try again later.','auth/network-request-failed':'No internet connection.','auth/user-disabled':'This account is disabled.'};return m[e&&e.code]||('Something went wrong'+(e&&e.code?' ('+e.code+')':'')+'.');}
+async function busy(btn,fn){if(btn.disabled)return;const o=btn.innerHTML;btn.disabled=true;btn.innerHTML='<span class="spin"></span>';try{return await fn();}finally{btn.disabled=false;btn.innerHTML=o;}}
+function view(id){['v-load','v-login','v-board'].forEach(x=>$(x).classList.toggle('hidden',x!==id));}
+
+const WIN=60000;             // a PIN is valid for 60 seconds after it is issued
+let unsub=null,ticker=null,skew=0,items=[],lastSig='',gen=0;
+const inflight=new Set(),retryAt={},deleting=new Set();
+
+$('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault();$('loginErr').textContent='';
+  await busy($('loginBtn'),async()=>{try{await auth.signInWithEmailAndPassword($('email').value.trim(),$('pass').value);}catch(err){$('loginErr').textContent=authMsg(err);}});
+});
+$('forgot').addEventListener('click',async()=>{
+  const em=$('email').value.trim();
+  if(!em){$('loginErr').textContent='Type your email above first.';return;}
+  try{await auth.sendPasswordResetEmail(em);$('loginErr').textContent='Password reset email sent.';}catch(err){$('loginErr').textContent=authMsg(err);}
+});
+$('logout').onclick=()=>auth.signOut();
+async function deny(msg){try{await auth.signOut();}catch(e){}view('v-login');$('loginErr').textContent=msg;}
+function stopBoard(){if(unsub){unsub();unsub=null;}clearInterval(ticker);ticker=null;items=[];lastSig='';inflight.clear();}
+
+auth.onAuthStateChanged(async u=>{
+  const g=++gen;stopBoard();
+  if(!u){view('v-login');return;}
+  view('v-load');
+  try{
+    const s=await db.collection('users').doc(u.uid).get();
+    if(g!==gen)return;
+    if(!s.exists)return deny('No EMS profile exists for this login. Ask your admin.');
+    const me=s.data();
+    if(me.active!==true)return deny('This account is disabled. Contact your admin.');
+    if(me.role!=='admin'&&me.role!=='pin')return deny('This login cannot run the PIN Board. Use a "PIN display" account.');
+    startBoard();view('v-board');
+  }catch(e){if(g===gen)deny('Could not load ('+(e.code||e.message)+'). Check internet and Firestore rules.');}
+});
+
+function setLive(ok,msg){
+  const l=$('live');l.textContent=ok?'Live':'Offline';l.className='live '+(ok?'on':'off');
+  const b=$('banner');if(msg){b.textContent=msg;b.classList.remove('hidden');}else b.classList.add('hidden');
+}
+function startBoard(){
+  unsub=db.collection('pins').onSnapshot(snap=>{setLive(!snap.metadata.fromCache);onSnap(snap);},err=>{setLive(false,'Cannot read PIN requests ('+(err.code||err.message)+').');});
+  ticker=setInterval(render,500);render();
+}
+function onSnap(snap){
+  const list=[];
+  snap.forEach(d=>{
+    const x=d.data({serverTimestamps:'estimate'}),uid=d.id;
+    if(x.used===true){d.ref.delete().catch(()=>{});return;}
+    if(!x.code){list.push({uid,name:x.empName,pending:true});return;}
+    const t=x.issuedAt&&x.issuedAt.toMillis?x.issuedAt.toMillis():null;
+    if(t==null)return;
+    list.push({uid,name:x.empName,code:String(x.code),iss:t});
+  });
+  items=list;render();
+}
+async function issue(uid){
+  if(inflight.has(uid)||(retryAt[uid]||0)>Date.now())return;
+  inflight.add(uid);
+  try{
+    const a=new Uint32Array(1);crypto.getRandomValues(a);
+    const code=String(a[0]%1000000).padStart(6,'0'),ref=db.collection('pins').doc(uid);
+    await ref.update({code,issuedAt:FV.serverTimestamp(),used:false});
+    const s=await ref.get({source:'server'}),t=s.data()&&s.data().issuedAt;
+    if(t&&t.toMillis)skew=t.toMillis()-Date.now();
+  }catch(e){retryAt[uid]=Date.now()+5000;}
+  finally{inflight.delete(uid);}
+}
+function render(){
+  const now=Date.now()+skew;
+  $('clk').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  items.forEach(i=>{
+    if(i.pending)issue(i.uid);
+    else if(now-i.iss>2*WIN&&!deleting.has(i.uid)){deleting.add(i.uid);db.collection('pins').doc(i.uid).delete().catch(()=>{}).then(()=>deleting.delete(i.uid));}
+  });
+  const live=items.filter(i=>i.pending||WIN-(now-i.iss)>0).sort((a,b)=>(a.iss||Infinity)-(b.iss||Infinity));
+  const sig=live.map(i=>i.uid+':'+(i.code||'p')+':'+(i.iss||0)).join('|');
+  if(sig!==lastSig){
+    lastSig=sig;
+    $('grid').innerHTML=live.map(i=>'<div class="pcard"><div class="pname">'+esc(i.name)+'</div>'
+      +(i.pending?'<div class="pcode wait">Generating…</div><div class="bar"><i style="width:0"></i></div><div class="pt">&nbsp;</div>'
+        :'<div class="pcode">'+esc(i.code.slice(0,3)+' '+i.code.slice(3))+'</div><div class="bar"><i data-b="'+esc(i.uid)+'"></i></div><div class="pt"><span data-t="'+esc(i.uid)+'"></span> left</div>')
+      +'</div>').join('');
+    $('empty').classList.toggle('hidden',live.length>0);
+  }
+  live.forEach(i=>{
+    if(i.pending)return;
+    const left=Math.max(0,WIN-(now-i.iss)),b=document.querySelector('[data-b="'+i.uid+'"]'),t=document.querySelector('[data-t="'+i.uid+'"]');
+    if(b){b.style.width=(left/WIN*100)+'%';b.className=left<=10000?'low':'';}
+    if(t)t.textContent=Math.ceil(left/1000)+'s';
+  });
+}
+})();
+</script>
+</body>
+</html>
